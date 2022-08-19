@@ -18,8 +18,11 @@ export const Title = styled.div({
 
 export const ListBox = styled.div({
   width: '235px',
-  height: '901px',
-  color: '#219653'
+  height: '140px',
+  color: '#219653',
+  marginTop: "10px",
+  padding: "5px 10px 0 10px",
+  borderRadius: '15px',
 })
 
 export const MainPanel = styled.div({
@@ -41,6 +44,7 @@ export const SubPanel = styled.div({
   borderRadius: '15px',
   backgroundColor: '#fff',
   display: 'flex',
+  alignItems: 'center',
   justifyContent: 'center',
   flexDirection:'column',
 })

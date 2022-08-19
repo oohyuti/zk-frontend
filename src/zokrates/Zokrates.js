@@ -5,20 +5,23 @@ import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import Client from "../relay/connnect.tsx";
 import { answerListTemplate} from "../component/Prover"
+import {useStore} from "./Storage"
 
 export const Zokrates = (props) => {
-  
-  const [proofData, setProofData] = useState([])
+
+  const [proofData, setProofData] = useState({ proof: null, vkKey:null })
   const [pOpen, setPOpen] = useState(true)
-  const [vOpen, setVOpen] = useState(false)
-  const [payload, setPayload] = useState(props.payload)
+  const [vOpen, setVOpen] = useState(true)
+  const [payload] = useState(props.payload)
 
   const client = Client.getInstance("https://zk-relay.xyz.day");
-
+  const addPayload = useStore(state => state.addPayload);
+ 
   useEffect(()=>{
     // eslint-disable-next-line no-undef
     zokratesInitialize().then((zokratesProvider) => {
-      if(props.isProof == true){
+      if(props.isProof === true){
+
         const privateInput = props.payload.privateData
         const source = `def main(field[10] a) -> field {
           field mut count = 0;
@@ -32,7 +35,6 @@ export const Zokrates = (props) => {
       
         // compilation
         const artifacts = zokratesProvider.compile(source);
-      
         // computation
         const { witness, output } = zokratesProvider.computeWitness(artifacts, [privateInput]);
       
@@ -40,26 +42,15 @@ export const Zokrates = (props) => {
         const keypair = zokratesProvider.setup(artifacts.program);
         // generate proof
         let proof = zokratesProvider.generateProof(artifacts.program, witness, keypair.pk);
-        
-        console.log('sender vk',keypair.vk )
-        console.log('sender proof', proof)
+        proofData.proof = {curve: proof.curve, inputs: answerListTemplate, proof: proof.proof, scheme: proof.scheme}
+        proofData.vkKey = keypair.vk
+        setProofData(proofData)
 
-        setProofData({proofData :{curve: proof.curve,inputs: answerListTemplate, proof: proof.proof, scheme: proof.scheme}, vkKey: keypair.vk })
-        // setProofData({proofData:proof, vkKey: keypair.vk})
-        const isVerified = zokratesProvider.verify(keypair.vk, proof);
-        console.log('before:', isVerified)
-
-      }else{
-        console.log('pay',payload)
-        console.log('receiver vk',payload.proof.vkKey )
-        console.log('receiver proof',  payload.proof.proofData)
-        const isVerified = zokratesProvider.verify(payload.proof.vkKey, payload.proof.proofData);
+      }
+      if(props.isVerify === true){
+        const isVerified = zokratesProvider.verify(payload.proof.vkKey, payload.proof.proof);
         payload.success = isVerified
-
-        let transactionRecord = Array.from(JSON.parse(localStorage.getItem("transactionRecord") || "{}"))
-        transactionRecord.unshift(payload);
-        localStorage.setItem("transactionRecord", JSON.stringify(transactionRecord));
-        console.log('suc', isVerified)
+        addPayload(payload)
       }
     });
   },[])
@@ -69,17 +60,15 @@ export const Zokrates = (props) => {
     setPOpen(false)
     client.transmit(id, payload.receiver, payload.amount, proofData);
   }
-  // const handleView = () => {
-  //   setVOpen(false)
-  //   console.log('dud',payload.success)
-  // }
 
+  const handleView = () => {
+    setVOpen(false)
+  }
 
   const renderConfirmProof = () => {
     return(
       <Dialog
         open={pOpen}
-        // onClose={handleClose}
       >
         <DialogTitle id="alert-dialog-title">
           確定傳送？
@@ -94,23 +83,26 @@ export const Zokrates = (props) => {
   }
 
   const renderVerify = () => {
-    <Dialog
-      open={vOpen}
-      // onClose={handleClose}
-    >
-      <DialogTitle id="alert-dialog-title">
-        收到新交易
-      </DialogTitle>
-      {/* <DialogActions>
-        <Button onClick={handleView} autoFocus>
-          查看
-        </Button>
-      </DialogActions> */}
-    </Dialog>
+    return(
+      <Dialog
+        open={vOpen}
+      >
+        <DialogTitle id="alert-dialog-title">
+          收到新交易
+        </DialogTitle>
+        <DialogActions>
+          <Button onClick={handleView} autoFocus>
+            確定
+          </Button>
+        </DialogActions>
+      </Dialog>
+    )
+
   }
   return (
     <>
-      {props.isProof?renderConfirmProof():renderVerify()}
+      {props.isProof && renderConfirmProof()}
+      {props.isVerify && renderVerify()}
     </>
   )
 }

@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import zokrates from "../zokrates/Zokrates";
-import { Title, TitleBox, MainPanel } from "../component/common";
-import Paper from "@mui/material/Paper";
+import { Title, TitleBox, MainPanel, ListBox } from "../component/Common";
 import Container from "@mui/material/Container";
 import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
@@ -16,29 +14,20 @@ function Transfer() {
 
   const handleProverTab = () => {
     setProverPage(true);
-    setVerifierPage(false)
+    setVerifierPage(false);
   };
 
-  const handleVerifierTab = (event) => {
+  const handleVerifierTab = () => {
     setProverPage(false);
-    setVerifierPage(true)
-
+    setVerifierPage(true);
   };
-
   return (
     <div style={{ backgroundColor: "#f8fcf8", flexGrow: "0" }}>
       <TitleBox>
         <Title>ZK WORKSHOP</Title>
       </TitleBox>
       <MainPanel>
-        <Paper
-          sx={{
-            marginTop: "10px",
-            padding: "5px 10px 0 10px",
-            width: "235px",
-            height: "100vh",
-          }}
-        >
+        <ListBox>
           <MenuList>
             <MenuItem
               sx={{
@@ -77,12 +66,13 @@ function Transfer() {
               Verifier
             </MenuItem>
           </MenuList>
-        </Paper>
+        </ListBox>
         <Container>
           <Title style={{ margin: "20px 0 0 40px", fontSize: "26px" }}>
             {proverPage === true ? "Prover" : "Verifier"}
           </Title>
-          {proverPage === true ? <Prover/> : <Verifier transactionRecord= {Array.from(JSON.parse(localStorage.getItem("transactionRecord") || "{}"))}/>}
+          {proverPage === true && <Prover />}
+          {verifierPage === true && <Verifier />}
         </Container>
       </MainPanel>
     </div>
@@ -101,10 +91,3 @@ const colorSet = {
 };
 
 export default Transfer;
-
-// zokrates({ dataState: ["1", "0", "1"] }).then(() => {
-//   console.log();
-// });
-// client.transmit("0001", "Bank B", "100", "0x01");
-// console.log("success pupu ");
-// console.log(result)

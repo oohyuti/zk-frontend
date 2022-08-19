@@ -1,8 +1,8 @@
 import { render } from "@testing-library/react";
-import { Verifier } from "../component/Verifier";
 import { io, Socket } from "socket.io-client";
 import React from "react";
 import { Zokrates } from "../zokrates/Zokrates";
+import { Navigate } from "react-router-dom";
 
 export interface TransactionRecord {
   amount: number;
@@ -30,6 +30,7 @@ export default class Client {
   }
 
   constructor(url: string) {
+    
     this.socket = io(url, {
       reconnectionDelayMax: 10000,
     });
@@ -42,35 +43,35 @@ export default class Client {
     this.socket.on("relay", (payload: TransactionRecord) => {
       // do something
       console.log("Received payload from relay:", payload);
-
-      // payload.success = true;
-      render(<Zokrates isProof={false} payload={payload}/>)
-      // let transactionRecord: TransactionRecord[] = Array.from(JSON.parse(localStorage.getItem("transactionRecord") || "{}") as TransactionRecord[]);
-      // transactionRecord.unshift(payload);
-      // localStorage.setItem("transactionRecord", JSON.stringify(transactionRecord));
-
+      render(<Zokrates  isProof={false} isVerify = {true} payload={payload}/>)
+      
     });
   }
 
   public subscribe = (bank: string) => {
-    if (this.bank) {
-      throw new Error("You can only subscribe to one bank");
-    }
+    // if (this.bank) {
+    //   throw new Error("You can only subscribe to one bank");
+    // }
     this.socket.emit("subscribe", { bank });
     this.bank = bank;
     console.log(`Subscribed to bank ${bank}`);
   };
   public transmit = (id: string, to: string, amount: string, proof: string) => {
-    if (!this.bank) {
-      throw new Error("You must subscribe to a bank first");
+    try{
+      if (!this.bank) {
+        throw new Error("You must subscribe to a bank first");
+      }
+      this.socket.emit("transmit", {
+        id,
+        from: this.bank,
+        to,
+        amount,
+        proof,
+      });
+      console.log(`Payload transmitted to ${to}`);
+    }catch(e){
+      <Navigate to ='/'/>
     }
-    this.socket.emit("transmit", {
-      id,
-      from: this.bank,
-      to,
-      amount,
-      proof,
-    });
-    console.log(`Payload transmitted to ${to}`);
+   
   };
 }

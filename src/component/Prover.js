@@ -7,7 +7,7 @@ import {
   StateText,
   ButtonPanel,
   SendDataPanel,
-} from "./common";
+} from "./Common";
 import TextField from "@mui/material/TextField";
 import Switch from "@mui/material/Switch";
 import Button from "@mui/material/Button";
@@ -16,18 +16,16 @@ import MarkAsUnreadIcon from "@mui/icons-material/MarkAsUnread";
 import PaidIcon from "@mui/icons-material/Paid";
 import { Zokrates } from "../zokrates/Zokrates";
 import { render } from "@testing-library/react";
+import { RemoveFromQueue } from "@mui/icons-material";
 
 export function Prover() {
   const [amount, setAmount] = useState(100);
   const [receiver, setReceiver] = useState("旺旺銀行");
   const [sender] = useState(localStorage.getItem("sender"));
-  const [questionList, setQuestionList] = useState(questionListTemplate);
+  const [questionList] = useState(questionListTemplate);
   const [privateData, setPrivateData] = useState(["1","1","1","1","1","1","1","1","1","1"])
 
-  // const client = Client.getInstance("https://zk-relay.xyz.day");
-
   const handleGenerateProof = () => {
-    console.log(privateData)
     render(
       <Zokrates isProof = {true} payload = {{receiver, amount, privateData}}/>
     )
@@ -41,19 +39,17 @@ export function Prover() {
   };
   const handleSwitch = (event) => {
     privateData[event.target.id] = event.target.checked?"0":"1"
-    setPrivateData(privateData)
-    
+    setPrivateData(Array.from(privateData))
   };
 
   const renderAmlQuestionList = () => {
     return questionList.map((item, index) => {
 
-      console.log(index)
       return (
-        <QuestionCard>
+        <QuestionCard key= {index}>
           Q{index + 1}. {item}
           <StateText>
-            {/* {privateData[index]==="1"? "false": "true"} */}
+            {privateData[index]==="1"? "false": "true"}
             <Switch
               id={index}
               onChange={handleSwitch}
@@ -69,7 +65,7 @@ export function Prover() {
     <SubPanel>
       <SendDataPanel>
         <Subtitle>
-          <SendIcon sx={{ marginRight: "10px" }} />
+          <SendIcon fontsize='small' sx={{ marginRight: "10px" }} />
           Sender : <span style={{ marginLeft: "13px" }}>{sender}</span>
         </Subtitle>
         <Subtitle>
