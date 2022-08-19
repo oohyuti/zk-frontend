@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Title, TitleBox, MainPanel, ListBox } from "../component/Common";
+import { Title, TitleBox, MainPanel, ListBox } from "../component/common";
 import Container from "@mui/material/Container";
 import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";

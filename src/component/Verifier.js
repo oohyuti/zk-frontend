@@ -1,5 +1,5 @@
 import React from "react";
-import { SubPanel, StateTag } from "./Common";
+import { SubPanel, StateTag } from "./common";
 import TableContainer from "@mui/material/TableContainer";
 import Table from "@mui/material/Table";
 import TableHead from "@mui/material/TableHead";

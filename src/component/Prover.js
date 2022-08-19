@@ -7,7 +7,7 @@ import {
   StateText,
   ButtonPanel,
   SendDataPanel,
-} from "./Common";
+} from "./common";
 import TextField from "@mui/material/TextField";
 import Switch from "@mui/material/Switch";
 import Button from "@mui/material/Button";
